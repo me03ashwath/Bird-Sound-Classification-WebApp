@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Birds!</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <style>
+        body {
+            background: rgb(50,62,103);
+            background: radial-gradient(circle, rgba(50,62,103,1) 0%, rgba(49,88,108,1) 55%, rgba(68,130,120,1) 100%);
+            font-family: Arial, sans-serif;
+            /* background-image: url('https://www.example.com/path-to-bird-background.jpg'); */
+            background-size: cover;
+            background-position: center;
+            padding: 20px;
+        }
+        .container {
+            margin-top: 1.5rem;
+            margin-bottom: 1.5rem;
+            max-width: 550px;
+            width: 500px;
+            /* margin: 0 auto; */
+            background: rgba(255, 255, 255, 0.8);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        input[type="file"] {
+            margin-bottom: 20px;
+            width: 100%;
+        }
+        button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            padding: 10px;
+            background-color: #4caf50;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button i {
+            margin-right: 8px;
+        }
+        button:hover {
+            background-color: #388e3c;
+        }
+        .response {
+            margin-top: 20px;
+            text-align: center;
+            color: green;
+        }
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+                height: 100vh;
+            }
+            .file-upload-button {
+                font-size: 14px;
+            }
+            button {
+                font-size: 14px;
+                padding: 8px;
+            }
+        }
+        .main{
+            /* background-color: red; */
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            /* align-self: center; */
+            /* justify-self: center; */
+            /* justify-content: center; */
+            align-items: center;
+        }
+        h2{
+            color: #333;
+
+        }
+    </style>
+</head>
+<body>
+    <div class="main">
+        <div class="Conta">
+            <div class="container">
+                <h1>Upload Your Bird Audio</h1>
+                <form id="uploadForm">
+                    <input type="file" id="audioFile" accept="audio/*" required>
+                    <button type="submit"><i class="fas fa-dove"></i> Upload</button>
+                </form>
+                <div id="responseMessage" class="response"></div>
+            </div>
+            <div class="container">
+                <h2 id="birdName"></h2>
+                <!-- <div class="about">
+                    <span>[About bird]</span>
+                    <p>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Numquam harum sit cupiditate ratione unde facere expedita saepe. Laborum optio animi, nulla alias magnam inventore doloribus, a eligendi voluptatibus repudiandae tenetur recusandae omnis, similique necessitatibus dicta. Repellendus quam doloremque, rem pariatur aspernatur debitis vero recusandae incidunt unde nisi necessitatibus optio officia? Libero cum fuga voluptas sint? Nisi vel maiores alias aspernatur eius a iste, voluptatibus sequi perferendis at explicabo commodi quas deserunt hic odio, nihil quia. Atque ea at magni unde, provident quibusdam modi itaque expedita commodi, nulla autem sapiente consectetur excepturi totam deleniti eius in? Ipsam in sunt maiores ipsum?</p>
+                </div> -->
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    // Does this cookie string begin with the name we want?
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        const csrftoken = getCookie('csrftoken');
+        document.getElementById('uploadForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            var formData = new FormData();
+            var audioFile = document.getElementById('audioFile').files[0];
+            formData.append('audio', audioFile);
+
+            fetch('/app/upload/', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': csrftoken
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('responseMessage').innerText = data.message;
+                if(data.message!=""){
+                    document.getElementById("birdName").innerText = data.name.replace("_sound", "") + " | Confidence Value : " +data.confidence+"%"
+                    // server_url = "https://content-summar-expressjs.vercel.app/summary"
+                    // fetch(server_url, {
+                    //     method: 'POST',
+                    //     body: {
+                    //         "data": data.name +" bird"
+                    //     },
+                    //     headers: {
+                    //         "Content-Type": "application/json"
+                    //     }
+                    // }).then(response => response.json()).then(data =>{
+                    //     console.log(data)
+                    // })
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+    </script>
+</body>
+</html>
